@@ -741,8 +741,6 @@ _route_del(struct poptrie *poptrie, struct radix_node **node,
         }
         return ret;
     }
-
-    return -1;
 }
 
 /*

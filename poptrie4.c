@@ -737,8 +737,6 @@ _route_del(struct poptrie *poptrie, struct radix_node **node, u32 prefix,
         }
         return ret;
     }
-
-    return -1;
 }
 
 /*
