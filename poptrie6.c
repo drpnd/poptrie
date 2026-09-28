@@ -80,14 +80,18 @@ int
 poptrie6_route_change(struct poptrie *poptrie, __uint128_t prefix, int len,
                      void *nexthop)
 {
-    int n;
     int ret;
+    int n;
 
     /* Find the FIB entry mapping first */
     n = poptrie_fib_ref(poptrie, nexthop);
 
     /* Try to route change */
     ret = _route_change(poptrie, &poptrie->radix, prefix, len, n, 0);
+    if ( ret < 0 ) {
+        /* Route not found; release the FIB reference we just acquired */
+        poptrie_fib_deref(poptrie, nexthop);
+    }
 
     return ret;
 }
@@ -108,6 +112,7 @@ poptrie6_route_update(struct poptrie *poptrie, __uint128_t prefix, int len,
     /* Insert to the radix tree */
     ret = _route_update(poptrie, &poptrie->radix, prefix, len, n, 0, NULL);
     if ( ret < 0 ) {
+        poptrie_fib_deref(poptrie, nexthop);
         return ret;
     }
 
