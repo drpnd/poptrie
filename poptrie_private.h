@@ -201,7 +201,8 @@ _update_inode(struct poptrie *poptrie, struct radix_node *node, int inode,
     for ( i = 0; i < (1 << 6); i++ ) {
         if ( VEC_BT(vector, i) ) {
             /* Internal node */
-            if ( (nodes[i].left && nodes[i].left->mark)
+            if ( nodes[i].mark
+                 || (nodes[i].left && nodes[i].left->mark)
                  || (nodes[i].right && nodes[i].right->mark)
                  || inode < 0 ) {
                 /* One or more child is marked */
