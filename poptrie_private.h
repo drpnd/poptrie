@@ -92,10 +92,6 @@ poptrie_route_add_propagate(struct radix_node *node, struct radix_node *ext)
     if ( NULL != node->ext ) {
         if ( ext->len > node->ext->len ) {
             /* This new node is more specific. */
-            if ( ext->nexthop != EXT_NH(node) ) {
-                /* Prefix and next hop are updated. */
-                node->mark = 1;
-            }
             node->mark = 1;
             node->ext = ext;
         } else {
