@@ -60,6 +60,9 @@ poptrie_route_add(struct poptrie *poptrie, u32 prefix, int len, void *nexthop)
 
     /* Find the FIB entry mapping first */
     n = poptrie_fib_ref(poptrie, nexthop);
+    if ( n < 0 ) {
+        return -1;
+    }
 
     /* Insert the prefix to the radix tree, then incrementally update the
        poptrie data structure */
@@ -84,6 +87,9 @@ poptrie_route_change(struct poptrie *poptrie, u32 prefix, int len,
 
     /* Find the FIB entry mapping first */
     n = poptrie_fib_ref(poptrie, nexthop);
+    if ( n < 0 ) {
+        return -1;
+    }
 
     ret = _route_change(poptrie, &poptrie->radix, prefix, len, n, 0);
     if ( ret < 0 ) {
@@ -106,6 +112,9 @@ poptrie_route_update(struct poptrie *poptrie, u32 prefix, int len,
 
     /* Find the FIB entry mapping first */
     n = poptrie_fib_ref(poptrie, nexthop);
+    if ( n < 0 ) {
+        return -1;
+    }
 
     /* Insert to the radix tree */
     ret = _route_update(poptrie, &poptrie->radix, prefix, len, n, 0, NULL);
