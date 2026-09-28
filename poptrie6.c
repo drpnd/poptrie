@@ -440,7 +440,11 @@ _update_dp2(struct poptrie *poptrie, struct radix_node *tnode, int alt,
 
     if ( tnode->left ) {
         prefix &= ~((__uint128_t)1 << (KEYLENGTH - depth - 1));
-        _update_dp2(poptrie, tnode->left, alt, prefix, len, depth + 1);
+        ret = _update_dp2(poptrie, tnode->left, alt, prefix, len,
+                           depth + 1);
+        if ( ret < 0 ) {
+            return ret;
+        }
     } else {
         idx = INDEX(prefix, 0, POPTRIE_S)
             >> (POPTRIE_S - depth) << (POPTRIE_S - depth);
