@@ -484,7 +484,6 @@ _update_part(struct poptrie *poptrie, struct radix_node *tnode, int inode,
         return -1;
     }
     memcpy(poptrie->nodes + nroot, cnodes, sizeof(poptrie_node_t));
-    oroot = poptrie->root;
     poptrie->root = nroot;
 
     /* Swap */
@@ -877,7 +876,6 @@ _update_part_dp(struct poptrie *poptrie, struct radix_node *tnode, int inode,
             return -1;
         }
         memcpy(poptrie->nodes + nroot, cnodes, sizeof(struct poptrie_node));
-        oroot = poptrie->root;
         poptrie->root = nroot;
 
         /* Replace the root with an atomic instruction */
