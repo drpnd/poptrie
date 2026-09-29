@@ -25,17 +25,9 @@ static int
 _descend_and_update(struct poptrie *, struct radix_node *, int,
                         struct poptrie_stack *, u32, int, int, u32 *);
 static int
-_update_inode_chunk(struct poptrie *, struct radix_node *, int,
-                    poptrie_node_t *, poptrie_leaf_t *);
-static int
-_update_inode(struct poptrie *, struct radix_node *, int, poptrie_node_t *,
-              poptrie_leaf_t *);
-static int
 _update_dp1(struct poptrie *, struct radix_node *, int, u32, int, int);
 static int
 _update_dp2(struct poptrie *, struct radix_node *, int, u32, int, int);
-static void
-_parse_triangle(struct radix_node *, u64 *, struct radix_node *, int, int);
 static void _clear_mark(struct radix_node *);
 static int
 _route_change(struct poptrie *, struct radix_node **, u32, int, poptrie_leaf_t,
