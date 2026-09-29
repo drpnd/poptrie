@@ -371,41 +371,28 @@ _update_inode_chunk_rec(struct poptrie *poptrie, struct radix_node *node,
     r--;
 
     /* Left */
-    if ( node->left ) {
-        ret0 = _update_inode_chunk_rec(poptrie, node->left, inode, nodes,
-                                       leaf ? &sleaf0 : NULL, pos, r);
-        if ( ret0 < 0 ) {
-            return -1;
-        }
-    } else {
+    if ( NULL == node->left ) {
         tmp.left = NULL;
         tmp.right = NULL;
         tmp.ext = node->ext;
-        ret0 = _update_inode_chunk_rec(poptrie, &tmp, inode, nodes,
-                                       leaf ? &sleaf0 : NULL, pos, r);
-        if ( ret0 < 0 ) {
-            return -1;
-        }
+    }
+    ret0 = _update_inode_chunk_rec(poptrie, node->left ? node->left : &tmp,
+                                   inode, nodes, leaf ? &sleaf0 : NULL, pos, r);
+    if ( ret0 < 0 ) {
+        return -1;
     }
 
     /* Right */
-    if ( node->right ) {
-        ret1 = _update_inode_chunk_rec(poptrie, node->right, inode, nodes,
-                                       leaf ? &sleaf1 : NULL,
-                                       pos + (1 << r), r);
-        if ( ret1 < 0 ) {
-            return -1;
-        }
-    } else {
+    if ( NULL == node->right ) {
         tmp.left = NULL;
         tmp.right = NULL;
         tmp.ext = node->ext;
-        ret1 = _update_inode_chunk_rec(poptrie, &tmp, inode, nodes,
-                                       leaf ? &sleaf1 : NULL,
-                                       pos + (1 << r), r);
-        if ( ret1 < 0 ) {
-            return -1;
-        }
+    }
+    ret1 = _update_inode_chunk_rec(poptrie, node->right ? node->right : &tmp,
+                                   inode, nodes, leaf ? &sleaf1 : NULL,
+                                   pos + (1 << r), r);
+    if ( ret1 < 0 ) {
+        return -1;
     }
     if ( ret0 > 0 && ret1 > 0 && NULL != leaf && sleaf0 == sleaf1 ) {
         *leaf = sleaf0;
