@@ -187,7 +187,6 @@ _update_inode(struct poptrie *poptrie, struct radix_node *node, int inode,
     poptrie_leaf_t sleaf;
     int p;
     int ninode;
-    int num;
 
     /* Parse triangle */
     VEC_INIT(vector);
@@ -292,12 +291,12 @@ _update_inode(struct poptrie *poptrie, struct radix_node *node, int inode,
     }
 
     /* Internal nodes */
-    num = 0;
+    nvec = 0;
     for ( i = 0; i < (1 << 6); i++ ) {
         if ( VEC_BT(vector, i) ) {
-            memcpy(&poptrie->nodes[base1 + num], &children[i],
+            memcpy(&poptrie->nodes[base1 + nvec], &children[i],
                    sizeof(poptrie_node_t));
-            num++;
+            nvec++;
         }
     }
     /* Leaves */
