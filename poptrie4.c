@@ -614,7 +614,7 @@ _route_update(struct poptrie *poptrie, struct radix_node **node, u32 prefix,
             /* Propagate this route to children */
             (*node)->mark = poptrie_route_add_propagate(*node, *node);
 
-            /* Update MBT */
+            /* Update the poptrie subtree */
             return _update_subtree(poptrie, *node, prefix, depth);
         }
     } else {
