@@ -143,7 +143,6 @@ poptrie_lookup(struct poptrie *poptrie, u32 addr)
     /* Top tier */
     idx = INDEX(addr, 0, POPTRIE_S);
     pos = POPTRIE_S;
-    base = poptrie->root;
 
     /* Direct pointing */
     if ( poptrie->dir[idx] & ((u32)1 << 31) ) {
@@ -161,7 +160,7 @@ poptrie_lookup(struct poptrie *poptrie, u32 addr)
             base = poptrie->nodes[inode].base1;
             idx = POPCNT_LS(poptrie->nodes[inode].vector, idx);
             /* Next internal node index */
-            base = base + (idx - 1);
+            base = base + idx - 1;
             /* Next node vector */
             idx = INDEX(addr, pos, 6);
             pos += 6;
@@ -172,9 +171,6 @@ poptrie_lookup(struct poptrie *poptrie, u32 addr)
             return poptrie->fib.entries[poptrie->leaves[base + idx - 1]].entry;
         }
     }
-
-    /* Not to be reached here, but put this to dismiss a compiler warning. */
-    return 0;
 }
 
 /*
