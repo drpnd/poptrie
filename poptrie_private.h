@@ -1187,6 +1187,11 @@ poptrie_fib_deref(struct poptrie *poptrie, void *nexthop)
         if ( poptrie->fib.entries[i].entry == nexthop ) {
             /* Found the matched entry */
             poptrie->fib.entries[i].refs--;
+            if ( 0 == poptrie->fib.entries[i].refs ) {
+                /* Clear the entry so it can be reused by a different
+                   nexthop without matching a stale pointer */
+                poptrie->fib.entries[i].entry = NULL;
+            }
             break;
         }
     }
