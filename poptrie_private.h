@@ -1124,6 +1124,7 @@ poptrie_fib_ref(struct poptrie *poptrie, void *nexthop)
     int i;
     int n;
 
+    n = -1;
     /* Find the FIB entry mapping first */
     for ( i = 0; i < poptrie->fib.sz; i++ ) {
         if ( poptrie->fib.entries[i].entry == nexthop ) {
