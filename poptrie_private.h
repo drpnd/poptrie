@@ -475,7 +475,7 @@ _update_part(struct poptrie *poptrie, struct radix_node *tnode, int inode,
     __sync_lock_test_and_set(root, nroot);
 
     /* Clean */
-    if ( !alt && !(oroot & ((u32)1<<31)) ) {
+    if ( !alt && !(oroot & ((u32)1 << 31)) ) {
         _update_clean_root(poptrie, nroot, oroot);
     }
 
