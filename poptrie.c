@@ -25,21 +25,21 @@ poptrie_init(struct poptrie *poptrie, int sz1, int sz0)
 {
     int ret;
     int i;
+    int allocated;
 
+    allocated = 0;
     if ( NULL == poptrie ) {
         /* Allocate new one */
         poptrie = malloc(sizeof(struct poptrie));
         if ( NULL == poptrie ) {
             return NULL;
         }
-        (void)memset(poptrie, 0, sizeof(struct poptrie));
-        /* Set the flag indicating that this data structure needs free() when
-           released. */
-        poptrie->_allocated = 1;
-    } else {
-        /* Write zero's */
-        (void)memset(poptrie, 0, sizeof(struct poptrie));
+        allocated = 1;
     }
+    (void)memset(poptrie, 0, sizeof(struct poptrie));
+    /* Set the flag indicating that this data structure needs free() when
+       released. */
+    poptrie->_allocated = allocated;
 
     /* Allocate the nodes and leaves */
     poptrie->nodes = malloc(sizeof(poptrie_node_t) * (1 << sz1));
