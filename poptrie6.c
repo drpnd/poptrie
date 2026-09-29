@@ -581,9 +581,8 @@ _route_change(struct poptrie *poptrie, struct radix_node **node,
 
             return ret;
         } else {
-            n = nexthop;
-            /* Dereference this entry */
-            poptrie->fib.entries[n].refs--;
+            /* Dereference this entry (no change needed) */
+            poptrie->fib.entries[nexthop].refs--;
 
             return 0;
         }
@@ -641,9 +640,8 @@ _route_update(struct poptrie *poptrie, struct radix_node **node,
 
                 return ret;
             } else {
-                n = nexthop;
-                /* Dereference this entry */
-                poptrie->fib.entries[n].refs--;
+                /* Dereference this entry (no change needed) */
+                poptrie->fib.entries[nexthop].refs--;
 
                 return 0;
             }
