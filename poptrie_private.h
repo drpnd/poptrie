@@ -151,10 +151,6 @@ poptrie_route_del_propagate(struct radix_node *node, struct radix_node *oext,
                             struct radix_node *next)
 {
     if ( oext == node->ext ) {
-        if ( oext->nexthop != EXT_NH(node) ) {
-            /* Next hop will change */
-            node->mark = 1;
-        }
         /* Replace the extracted node */
         node->ext = next;
         node->mark = 1;
