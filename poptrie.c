@@ -75,8 +75,8 @@ poptrie_init(struct poptrie *poptrie, int sz1, int sz0)
     }
     ret = buddy_init(poptrie->cleaves, sz0, sz0, sizeof(u32));
     if ( ret < 0 ) {
-        free(poptrie->cnodes);
-        poptrie->cnodes = NULL;
+        free(poptrie->cleaves);
+        poptrie->cleaves = NULL;
         poptrie_release(poptrie);
         return NULL;
     }
