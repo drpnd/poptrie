@@ -619,8 +619,7 @@ _update_part_loop1(struct poptrie *poptrie, struct radix_node *tnode, int inode,
                 memcpy(poptrie->leaves + base0, leaves,
                        sizeof(poptrie_leaf_t) * n);
 
-                p = POPCNT(vector);
-                n = p;
+                n = POPCNT(vector);
                 if ( n > 0 ) {
                     base1 = buddy_alloc2(poptrie->cnodes, bsr(n - 1) + 1);
                     if ( base1 < 0 ) {
@@ -732,8 +731,7 @@ _update_part_loop2(struct poptrie *poptrie, struct poptrie_stack *stack,
         node = &poptrie->nodes[stack->inode + NODEINDEX(stack->idx)];
         if ( VEC_BT(node->vector, BITINDEX(stack->idx)) ) {
             /* Same vector, then allocate and replace */
-            p = POPCNT(node->vector);
-            n = p;
+            n = POPCNT(node->vector);
             base1 = buddy_alloc2(poptrie->cnodes, bsr(n - 1) + 1);
             if ( base1 < 0 ) {
                 return -1;
@@ -764,8 +762,7 @@ _update_part_loop2(struct poptrie *poptrie, struct poptrie_stack *stack,
             vector = node->vector;
             VEC_SET(vector, BITINDEX(stack->idx));
 
-            p = POPCNT(vector);
-            n = p;
+            n = POPCNT(vector);
             base1 = buddy_alloc2(poptrie->cnodes, bsr(n - 1) + 1);
             if ( base1 < 0 ) {
                 return -1;
