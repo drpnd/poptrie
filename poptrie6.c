@@ -458,20 +458,21 @@ _update_dp2(struct poptrie *poptrie, struct radix_node *tnode, int alt,
     if ( tnode->right ) {
         prefix |= (__uint128_t)1 << (KEYLENGTH - depth - 1);
         return _update_dp2(poptrie, tnode->right, alt, prefix, len, depth + 1);
-    } else {
-        idx = INDEX(prefix, 0, POPTRIE_S)
-            >> (POPTRIE_S - depth)
-            << (POPTRIE_S - depth);
-        idx += 1 << (POPTRIE_S - depth - 1);
-        for ( i = 0; i < (1 << (POPTRIE_S - depth - 1)); i++ ) {
-            if ( alt ) {
-                poptrie->altdir[idx + i] = ((u32)1 << 31) | EXT_NH(tnode);
-            } else {
-                poptrie->dir[idx + i] = ((u32)1 << 31) | EXT_NH(tnode);
-                _update_clean_subtree(poptrie, poptrie->dir[idx + i]);
-                if ( (int)poptrie->dir[idx + i] >= 0 ) {
-                    buddy_free2(poptrie->cnodes, poptrie->dir[idx + i]);
-                }
+    }
+
+    /* Right leaf fallback */
+    idx = INDEX(prefix, 0, POPTRIE_S)
+        >> (POPTRIE_S - depth)
+        << (POPTRIE_S - depth);
+    idx += 1 << (POPTRIE_S - depth - 1);
+    for ( i = 0; i < (1 << (POPTRIE_S - depth - 1)); i++ ) {
+        if ( alt ) {
+            poptrie->altdir[idx + i] = ((u32)1 << 31) | EXT_NH(tnode);
+        } else {
+            poptrie->dir[idx + i] = ((u32)1 << 31) | EXT_NH(tnode);
+            _update_clean_subtree(poptrie, poptrie->dir[idx + i]);
+            if ( (int)poptrie->dir[idx + i] >= 0 ) {
+                buddy_free2(poptrie->cnodes, poptrie->dir[idx + i]);
             }
         }
     }
