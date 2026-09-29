@@ -371,46 +371,32 @@ _update_dp1(struct poptrie *poptrie, struct radix_node *tnode, int alt,
         if ( tnode->right ) {
             return _update_dp1(poptrie, tnode->right, alt, prefix, len,
                                depth + 1);
-        } else {
-            idx = INDEX(prefix, 0, POPTRIE_S)
-                >> (POPTRIE_S - len)
-                << (POPTRIE_S - len);
-            for ( i = 0; i < (1 << (POPTRIE_S - len)); i++ ) {
-                if ( alt ) {
-                    poptrie->altdir[idx + i] = ((u32)1 << 31) | EXT_NH(tnode);
-                } else {
-                    poptrie->dir[idx + i] = ((u32)1 << 31) | EXT_NH(tnode);
-                    _update_clean_subtree(poptrie, poptrie->dir[idx + i]);
-                    if ( (int)poptrie->dir[idx + i] >= 0 ) {
-                        buddy_free2(poptrie->cnodes, poptrie->dir[idx + i]);
-                    }
-                }
-            }
-            return 0;
         }
     } else {
         /* Left */
         if ( tnode->left ) {
             return _update_dp1(poptrie, tnode->left, alt, prefix, len,
                                depth + 1);
-        } else {
-            idx = INDEX(prefix, 0, POPTRIE_S)
-                >> (POPTRIE_S - len)
-                << (POPTRIE_S - len);
-            for ( i = 0; i < (1 << (POPTRIE_S - len)); i++ ) {
-                if ( alt ) {
-                    poptrie->altdir[idx + i] = ((u32)1 << 31) | EXT_NH(tnode);
-                } else {
-                    poptrie->dir[idx + i] = ((u32)1 << 31) | EXT_NH(tnode);
-                    _update_clean_subtree(poptrie, poptrie->dir[idx + i]);
-                    if ( (int)poptrie->dir[idx + i] >= 0 ) {
-                        buddy_free2(poptrie->cnodes, poptrie->dir[idx + i]);
-                    }
-                }
-            }
-            return 0;
         }
     }
+
+    /* Leaf fallback: fill direct pointing entries with the extracted
+       next hop from the current radix node */
+    idx = INDEX(prefix, 0, POPTRIE_S)
+        >> (POPTRIE_S - len)
+        << (POPTRIE_S - len);
+    for ( i = 0; i < (1 << (POPTRIE_S - len)); i++ ) {
+        if ( alt ) {
+            poptrie->altdir[idx + i] = ((u32)1 << 31) | EXT_NH(tnode);
+        } else {
+            poptrie->dir[idx + i] = ((u32)1 << 31) | EXT_NH(tnode);
+            _update_clean_subtree(poptrie, poptrie->dir[idx + i]);
+            if ( (int)poptrie->dir[idx + i] >= 0 ) {
+                buddy_free2(poptrie->cnodes, poptrie->dir[idx + i]);
+            }
+        }
+    }
+    return 0;
 }
 static int
 _update_dp2(struct poptrie *poptrie, struct radix_node *tnode, int alt,
