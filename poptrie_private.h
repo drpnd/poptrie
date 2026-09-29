@@ -986,7 +986,7 @@ _update_clean_node(struct poptrie *poptrie, poptrie_node_t *node, int oinode)
 
     /* Clear */
     if ( (int)node->base1 != oinode ) {
-         buddy_free2(poptrie->cnodes, oinode);
+        buddy_free2(poptrie->cnodes, oinode);
     }
 }
 static void
