@@ -1005,8 +1005,6 @@ _update_clean_inode(struct poptrie *poptrie, int ninode, int oinode)
                 } else {
                     _update_clean_inode(poptrie, -1, obase);
                 }
-            }
-            if ( VEC_BT(poptrie->nodes[oinode].vector, i) ) {
                 obase += 1;
             }
             if ( VEC_BT(poptrie->nodes[ninode].vector, i) ) {
