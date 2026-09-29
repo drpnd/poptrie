@@ -546,15 +546,31 @@ _route_add(struct poptrie *poptrie, struct radix_node **node,
 }
 
 /*
+ * Change the nexthop of an existing route and update the poptrie.
+ * Returns 0 on success, -1 on error.
+ */
+static int
+_do_route_change(struct poptrie *poptrie, struct radix_node *node,
+                 __uint128_t prefix, int depth, poptrie_leaf_t nexthop)
+{
+    int ret;
+    int n;
+
+    n = node->nexthop;
+    node->nexthop = nexthop;
+    node->mark = poptrie_route_change_propagate(node, node);
+    ret = _update_subtree(poptrie, node, prefix, depth);
+    poptrie->fib.entries[n].refs--;
+    return ret;
+}
+
+/*
  * Change a route
  */
 static int
 _route_change(struct poptrie *poptrie, struct radix_node **node,
               __uint128_t prefix, int len, poptrie_leaf_t nexthop, int depth)
 {
-    int ret;
-    int n;
-
     if ( NULL == *node ) {
         /* Must have the entry for route_change() */
         return -1;
@@ -568,21 +584,10 @@ _route_change(struct poptrie *poptrie, struct radix_node **node,
         }
         /* Update the entry */
         if ( (*node)->nexthop != nexthop ) {
-            n = (*node)->nexthop;
-            (*node)->nexthop = nexthop;
-            (*node)->mark = poptrie_route_change_propagate(*node, *node);
-
-            /* Marked root */
-            ret = _update_subtree(poptrie, *node, prefix, depth);
-
-            /* Dereference this entry */
-            poptrie->fib.entries[n].refs--;
-
-            return ret;
+            return _do_route_change(poptrie, *node, prefix, depth, nexthop);
         } else {
             /* Dereference this entry (no change needed) */
             poptrie->fib.entries[nexthop].refs--;
-
             return 0;
         }
     } else {
@@ -606,9 +611,6 @@ _route_update(struct poptrie *poptrie, struct radix_node **node,
               __uint128_t prefix, int len, poptrie_leaf_t nexthop, int depth,
               struct radix_node *ext)
 {
-    int ret;
-    int n;
-
     if ( NULL == *node ) {
         if ( _alloc_radix_node(node, ext) < 0 ) {
             return -1;
@@ -620,21 +622,11 @@ _route_update(struct poptrie *poptrie, struct radix_node **node,
         if ( (*node)->valid ) {
             /* Already exists */
             if ( (*node)->nexthop != nexthop ) {
-                n = (*node)->nexthop;
-                (*node)->nexthop = nexthop;
-                (*node)->mark = poptrie_route_change_propagate(*node, *node);
-
-                /* Marked root */
-                ret = _update_subtree(poptrie, *node, prefix, depth);
-
-                /* Dereference this entry */
-                poptrie->fib.entries[n].refs--;
-
-                return ret;
+                return _do_route_change(poptrie, *node, prefix, depth,
+                                        nexthop);
             } else {
                 /* Dereference this entry (no change needed) */
                 poptrie->fib.entries[nexthop].refs--;
-
                 return 0;
             }
         } else {
