@@ -53,6 +53,14 @@ _update_inode_chunk_rec(struct poptrie *, struct radix_node *, int,
 static int
 _update_part(struct poptrie *, struct radix_node *, int, struct poptrie_stack *,
              u32 *, int);
+/*
+ * Rebuild the leafvec and leaves array for a node whose leaf slots are
+ * being updated.  Returns the number of distinct leaves written.
+ */
+static int
+_rebuild_leafvec(struct poptrie *poptrie, poptrie_node_t *node,
+                 u64 vector, int changed_idx, poptrie_leaf_t sleaf,
+                 u64 *leafvec, poptrie_leaf_t *leaves);
 static int
 _update_part_loop1(struct poptrie *, struct radix_node *, int,
                    struct poptrie_stack *, struct poptrie_node *,
@@ -497,6 +505,52 @@ _update_part(struct poptrie *poptrie, struct radix_node *tnode, int inode,
 
     return 0;
 }
+/*
+ * Rebuild the leafvec and leaves array for a node whose leaf slots are
+ * being updated.  The vector indicates which positions are internal nodes
+ * (bit set) vs leaf slots (bit clear).  The changed_idx position uses
+ * sleaf as its new leaf value; all other leaf positions read from the
+ * existing node's leaf array.  Adjacent identical leaf values are
+ * compressed (only the first occurrence sets a leafvec bit).
+ * Returns the number of distinct leaves written.
+ */
+static int
+_rebuild_leafvec(struct poptrie *poptrie, poptrie_node_t *node,
+                 u64 vector, int changed_idx, poptrie_leaf_t sleaf,
+                 u64 *leafvec, poptrie_leaf_t *leaves)
+{
+    int i;
+    int p;
+    int n;
+    u64 prev;
+
+    VEC_INIT(*leafvec);
+    n = 0;
+    prev = (u64)-1;
+    for ( i = 0; i < (1 << 6); i++ ) {
+        if ( !VEC_BT(vector, i) ) {
+            if ( i == changed_idx ) {
+                if ( sleaf != prev ) {
+                    leaves[n] = sleaf;
+                    VEC_SET(*leafvec, i);
+                    n++;
+                }
+                prev = sleaf;
+            } else {
+                p = POPCNT_LS(node->leafvec, i);
+                if ( poptrie->leaves[node->base0 + p - 1] != prev ) {
+                    leaves[n] = poptrie->leaves[node->base0 + p - 1];
+                    VEC_SET(*leafvec, i);
+                    n++;
+                }
+                prev = poptrie->leaves[node->base0 + p - 1];
+            }
+        }
+    }
+
+    return n;
+}
+
 static int
 _update_part_loop1(struct poptrie *poptrie, struct radix_node *tnode, int inode,
                    struct poptrie_stack *stack, struct poptrie_node *cnodes,
@@ -508,7 +562,6 @@ _update_part_loop1(struct poptrie *poptrie, struct radix_node *tnode, int inode,
     int p;
     int n;
     poptrie_leaf_t leaves[1 << 6];
-    u64 prev;
     struct poptrie_node *node;
     u64 vector;
     u64 leafvec;
@@ -574,29 +627,8 @@ _update_part_loop1(struct poptrie *poptrie, struct radix_node *tnode, int inode,
         if ( VEC_BT(node->vector, BITINDEX(stack->idx)) ) {
             /* Internal node to leaf */
             VEC_CLEAR(vector, BITINDEX(stack->idx));
-            VEC_INIT(leafvec);
-            n = 0;
-            prev = (u64)-1;
-            for ( i = 0; i < (1 << 6); i++ ) {
-                if ( !VEC_BT(vector, i) ) {
-                    if ( i == BITINDEX(stack->idx) ) {
-                        if ( sleaf != prev ) {
-                            leaves[n] = sleaf;
-                            VEC_SET(leafvec, i);
-                            n++;
-                        }
-                        prev = sleaf;
-                    } else {
-                        p = POPCNT_LS(node->leafvec, i);
-                        if ( poptrie->leaves[node->base0 + p - 1] != prev ) {
-                            leaves[n] = poptrie->leaves[node->base0 + p - 1];
-                            VEC_SET(leafvec, i);
-                            n++;
-                        }
-                        prev = poptrie->leaves[node->base0 + p - 1];
-                    }
-                }
-            }
+            n = _rebuild_leafvec(poptrie, node, vector, BITINDEX(stack->idx),
+                                 sleaf, &leafvec, leaves);
 
             if ( 1 != n || 0 != POPCNT(vector) || (stack - 1)->idx < 0 ) {
                 *vcomp = 0;
@@ -640,29 +672,8 @@ _update_part_loop1(struct poptrie *poptrie, struct radix_node *tnode, int inode,
             }
         } else {
             /* Leaf node is changed */
-            VEC_INIT(leafvec);
-            n = 0;
-            prev = (u64)-1;
-            for ( i = 0; i < (1 << 6); i++ ) {
-                if ( !VEC_BT(vector, i) ) {
-                    if ( i == BITINDEX(stack->idx) ) {
-                        if ( sleaf != prev ) {
-                            leaves[n] = sleaf;
-                            VEC_SET(leafvec, i);
-                            n++;
-                        }
-                        prev = sleaf;
-                    } else {
-                        p = POPCNT_LS(node->leafvec, i);
-                        if ( poptrie->leaves[node->base0 + p - 1] != prev ) {
-                            leaves[n] = poptrie->leaves[node->base0 + p - 1];
-                            VEC_SET(leafvec, i);
-                            n++;
-                        }
-                        prev =  poptrie->leaves[node->base0 + p - 1];
-                    }
-                }
-            }
+            n = _rebuild_leafvec(poptrie, node, vector, BITINDEX(stack->idx),
+                                 sleaf, &leafvec, leaves);
 
             if ( 1 != n || 0 != POPCNT(vector) || (stack - 1)->idx < 0 ) {
                 *vcomp = 0;
