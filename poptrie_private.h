@@ -637,7 +637,7 @@ _update_part_loop1(struct poptrie *poptrie, struct radix_node *tnode, int inode,
                         memcpy(&poptrie->nodes[base1 + n],
                                &poptrie->nodes[node->base1 + p],
                                sizeof(poptrie_node_t));
-                        n += 1;
+                        n++;
                     }
                 }
 
@@ -747,7 +747,7 @@ _update_part_loop2(struct poptrie *poptrie, struct poptrie_stack *stack,
                                &poptrie->nodes[node->base1 + n],
                                sizeof(poptrie_node_t));
                     }
-                    n += 1;
+                    n++;
                 }
             }
             oroot = node->base1;
@@ -801,12 +801,12 @@ _update_part_loop2(struct poptrie *poptrie, struct poptrie_stack *stack,
                     memcpy(&poptrie->nodes[base1 + n],
                            &poptrie->nodes[node->base1 + j],
                            sizeof(poptrie_node_t));
-                    n += 1;
-                    j += 1;
+                    n++;
+                    j++;
                 } else if ( i == BITINDEX(stack->idx) ) {
                     memcpy(&poptrie->nodes[base1 + n], cnodes,
                            sizeof(poptrie_node_t));
-                    n += 1;
+                    n++;
                 }
             }
 
