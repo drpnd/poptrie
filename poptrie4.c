@@ -69,7 +69,7 @@ poptrie_route_add(struct poptrie *poptrie, u32 prefix, int len, void *nexthop)
     ret = _route_add(poptrie, &poptrie->radix, prefix, len, n, 0, NULL);
     if ( ret < 0 ) {
         poptrie_fib_deref(poptrie, nexthop);
-        return ret;
+        return -1;
     }
 
     return 0;
@@ -95,9 +95,10 @@ poptrie_route_change(struct poptrie *poptrie, u32 prefix, int len,
     if ( ret < 0 ) {
         /* Route not found; release the FIB reference we just acquired */
         poptrie_fib_deref(poptrie, nexthop);
+        return ret;
     }
 
-    return ret;
+    return 0;
 }
 
 /*
@@ -120,7 +121,7 @@ poptrie_route_update(struct poptrie *poptrie, u32 prefix, int len,
     ret = _route_update(poptrie, &poptrie->radix, prefix, len, n, 0, NULL);
     if ( ret < 0 ) {
         poptrie_fib_deref(poptrie, nexthop);
-        return ret;
+        return -1;
     }
 
     return 0;
