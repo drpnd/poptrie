@@ -136,7 +136,7 @@ buddy_alloc(struct buddy *bs, int n)
 
     ret = buddy_alloc2(bs, n);
     if ( ret < 0 ) {
-        return NULL;;
+        return NULL;
     }
 
     return (void *)((u64)bs->blocks + bs->bsz * ret);
