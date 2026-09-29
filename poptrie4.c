@@ -476,6 +476,25 @@ _update_dp2(struct poptrie *poptrie, struct radix_node *tnode, int alt,
 }
 
 /*
+ * Allocate and initialize a new radix node.  Returns 0 on success, -1 on
+ * memory allocation failure.
+ */
+static int
+_alloc_radix_node(struct radix_node **node, struct radix_node *ext)
+{
+    *node = malloc(sizeof(struct radix_node));
+    if ( NULL == *node ) {
+        return -1;
+    }
+    (*node)->valid = 0;
+    (*node)->left = NULL;
+    (*node)->right = NULL;
+    (*node)->ext = ext;
+    (*node)->mark = 0;
+    return 0;
+}
+
+/*
  * Recursive function to add a route to the poptrie data structure while
  * inserting the route to the RIB (radix tree)
  */
@@ -485,16 +504,9 @@ _route_add(struct poptrie *poptrie, struct radix_node **node,
            struct radix_node *ext)
 {
     if ( NULL == *node ) {
-        *node = malloc(sizeof(struct radix_node));
-        if ( NULL == *node ) {
-            /* Memory error */
+        if ( _alloc_radix_node(node, ext) < 0 ) {
             return -1;
         }
-        (*node)->valid = 0;
-        (*node)->left = NULL;
-        (*node)->right = NULL;
-        (*node)->ext = ext;
-        (*node)->mark = 0;
     }
 
     if ( len == depth ) {
@@ -593,16 +605,9 @@ _route_update(struct poptrie *poptrie, struct radix_node **node, u32 prefix,
     int n;
 
     if ( NULL == *node ) {
-        *node = malloc(sizeof(struct radix_node));
-        if ( NULL == *node ) {
-            /* Memory error */
+        if ( _alloc_radix_node(node, ext) < 0 ) {
             return -1;
         }
-        (*node)->valid = 0;
-        (*node)->left = NULL;
-        (*node)->right = NULL;
-        (*node)->ext = ext;
-        (*node)->mark = 0;
     }
 
     if ( len == depth ) {
