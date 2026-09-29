@@ -271,8 +271,7 @@ _update_inode(struct poptrie *poptrie, struct radix_node *node, int inode,
     /* Internal nodes */
     base1 = -1;
     if ( nvec > 0 ) {
-        p = nvec;
-        base1 = buddy_alloc2(poptrie->cnodes, bsr(p - 1) + 1);
+        base1 = buddy_alloc2(poptrie->cnodes, bsr(nvec - 1) + 1);
         if ( base1 < 0 ) {
             return -1;
         }
@@ -280,8 +279,7 @@ _update_inode(struct poptrie *poptrie, struct radix_node *node, int inode,
     /* Leaves */
     base0 = -1;
     if ( nlvec > 0 ) {
-        p = nlvec;
-        base0 = buddy_alloc2(poptrie->cleaves, bsr(p - 1) + 1);
+        base0 = buddy_alloc2(poptrie->cleaves, bsr(nlvec - 1) + 1);
         if ( base0 < 0 ) {
             if ( base1 >= 0 ) {
                 buddy_free2(poptrie->cnodes, base1);
