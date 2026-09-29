@@ -247,8 +247,7 @@ _update_inode(struct poptrie *poptrie, struct radix_node *node, int inode,
                     /* The working child is a leaf node */
                     VEC_CLEAR(vector, i);
                     p = POPCNT_LS(poptrie->nodes[inode].leafvec, i);
-                    sleaf
-                        = poptrie->leaves[poptrie->nodes[inode].base0 + p - 1];
+                    sleaf = poptrie->leaves[poptrie->nodes[inode].base0 + p - 1];
                     if ( prev != sleaf ) {
                         VEC_SET(leafvec, i);
                         leaves[nlvec] = sleaf;
