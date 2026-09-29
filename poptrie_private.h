@@ -427,9 +427,6 @@ _update_part(struct poptrie *poptrie, struct radix_node *tnode, int inode,
 #else
     cnodes = alloca(sizeof(struct poptrie_node) << (POPTRIE_S - 6));
 #endif
-    if ( NULL == cnodes ) {
-        return -1;
-    }
 
     /* Not the root */
     ret = _update_inode_chunk_rec(poptrie, tnode, inode, cnodes, &sleaf, 0, 0);
@@ -831,9 +828,6 @@ _update_part_dp(struct poptrie *poptrie, struct radix_node *tnode, int inode,
     int oroot;
 
     cnodes = alloca(sizeof(struct poptrie_node));
-    if ( NULL == cnodes ) {
-        return -1;
-    }
     ret = _update_inode_chunk_rec(poptrie, tnode, inode, cnodes, &sleaf, 0, 0);
     if ( ret < 0 ) {
         return -1;
