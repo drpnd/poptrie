@@ -53,6 +53,7 @@ _update_inode_chunk_rec(struct poptrie *, struct radix_node *, int,
 static int
 _update_part(struct poptrie *, struct radix_node *, int, struct poptrie_stack *,
              u32 *, int);
+
 /*
  * Rebuild the leafvec and leaves array for a node whose leaf slots are
  * being updated.  Returns the number of distinct leaves written.
