@@ -718,25 +718,15 @@ _rib_lookup(struct radix_node *node, u32 addr, int depth, struct radix_node *en)
     if ( BT(addr, KEYLENGTH - depth - 1) ) {
         /* Right */
         if ( NULL == node->right ) {
-            if ( NULL != en ) {
-                return en->nexthop;
-            } else {
-                return 0;
-            }
-        } else {
-            return _rib_lookup(node->right, addr, depth + 1, en);
+            return en ? en->nexthop : 0;
         }
+        return _rib_lookup(node->right, addr, depth + 1, en);
     } else {
         /* Left */
         if ( NULL == node->left ) {
-            if ( NULL != en ) {
-                return en->nexthop;
-            } else {
-                return 0;
-            }
-        } else {
-            return _rib_lookup(node->left, addr, depth + 1, en);
+            return en ? en->nexthop : 0;
         }
+        return _rib_lookup(node->left, addr, depth + 1, en);
     }
 }
 
