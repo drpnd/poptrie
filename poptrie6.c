@@ -400,15 +400,12 @@ _update_dp2(struct poptrie *poptrie, struct radix_node *tnode, int alt,
         stack[0].idx = -1;
         stack[0].width = -1;
 
-        if ( poptrie->dir[idx] & ((u32)1 << 31) ) {
-            ret = _update_part(poptrie, tnode, -1, &stack[1],
-                               alt ? &poptrie->altdir[idx] : &poptrie->dir[idx],
-                               alt);
-        } else {
-            ret = _update_part(poptrie, tnode, poptrie->dir[idx], &stack[1],
-                               alt ? &poptrie->altdir[idx] : &poptrie->dir[idx],
-                               alt);
-        }
+        ret = _update_part(poptrie, tnode,
+                           ( poptrie->dir[idx] & ((u32)1 << 31) ) ? -1
+                           : (int)poptrie->dir[idx],
+                           &stack[1],
+                           alt ? &poptrie->altdir[idx] : &poptrie->dir[idx],
+                           alt);
         return ret;
     }
 
