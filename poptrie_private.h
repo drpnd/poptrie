@@ -346,20 +346,13 @@ _update_inode_chunk_rec(struct poptrie *poptrie, struct radix_node *node,
     poptrie_leaf_t sleaf1;
 
     if ( 0 == r ) {
-        if ( NULL != leaf ) {
-            ret = _update_inode(poptrie, node, inode + pos, nodes + pos,
-                                &sleaf0);
-            if ( ret < 0 ) {
-                return -1;
-            }
-            if ( ret > 0 ) {
-                *leaf = sleaf0;
-            }
-        } else {
-            ret = _update_inode(poptrie, node, inode + pos, nodes + pos, NULL);
-            if ( ret < 0 ) {
-                return -1;
-            }
+        ret = _update_inode(poptrie, node, inode + pos, nodes + pos,
+                            leaf ? &sleaf0 : NULL);
+        if ( ret < 0 ) {
+            return -1;
+        }
+        if ( ret > 0 && NULL != leaf ) {
+            *leaf = sleaf0;
         }
         return ret;
     }
