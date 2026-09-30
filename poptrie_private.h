@@ -208,8 +208,8 @@ _update_inode(struct poptrie *poptrie, struct radix_node *node, int inode,
                 /* One or more child is marked */
                 if ( inode >= 0 ) {
                     if ( VEC_BT(poptrie->nodes[inode].vector, i) ) {
-                        p = POPCNT_LS(poptrie->nodes[inode].vector, i);
-                        ninode = poptrie->nodes[inode].base1 + p - 1;
+                        ninode = poptrie->nodes[inode].base1
+                            + POPCNT_LS(poptrie->nodes[inode].vector, i) - 1;
                     } else {
                         ninode = -1;
                     }
