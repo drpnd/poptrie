@@ -440,7 +440,8 @@ _update_part(struct poptrie *poptrie, struct radix_node *tnode, int inode,
                                  &vcomp);
         if ( ret < 0 ) {
             return -1;
-        } else if ( ret > 0 ) {
+        }
+        if ( ret > 0 ) {
             return 0;
         }
         stack--;
@@ -450,7 +451,8 @@ _update_part(struct poptrie *poptrie, struct radix_node *tnode, int inode,
         ret = _update_part_loop2(poptrie, stack, cnodes);
         if ( ret < 0 ) {
             return -1;
-        } else if ( ret > 0 ) {
+        }
+        if ( ret > 0 ) {
             return 0;
         }
         stack--;
