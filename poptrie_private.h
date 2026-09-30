@@ -186,7 +186,6 @@ _update_inode(struct poptrie *poptrie, struct radix_node *node, int inode,
     int base1;
     int ret;
     poptrie_leaf_t sleaf;
-    int p;
     int ninode;
 
     /* Parse triangle */
@@ -239,16 +238,16 @@ _update_inode(struct poptrie *poptrie, struct radix_node *node, int inode,
                 /* None of children is marked, then copy */
                 if ( VEC_BT(poptrie->nodes[inode].vector, i) ) {
                     /* Connect to the working internal node */
-                    p = POPCNT_LS(poptrie->nodes[inode].vector, i);
                     memcpy(children + i,
                            poptrie->nodes + poptrie->nodes[inode].base1
-                           + p - 1, sizeof(poptrie_node_t));
+                           + POPCNT_LS(poptrie->nodes[inode].vector, i) - 1,
+                           sizeof(poptrie_node_t));
                     nvec++;
                 } else {
                     /* The working child is a leaf node */
                     VEC_CLEAR(vector, i);
-                    p = POPCNT_LS(poptrie->nodes[inode].leafvec, i);
-                    sleaf = poptrie->leaves[poptrie->nodes[inode].base0 + p - 1];
+                    sleaf = poptrie->leaves[poptrie->nodes[inode].base0
+                        + POPCNT_LS(poptrie->nodes[inode].leafvec, i) - 1];
                     if ( prev != sleaf ) {
                         VEC_SET(leafvec, i);
                         leaves[nlvec] = sleaf;
