@@ -205,15 +205,11 @@ _update_inode(struct poptrie *poptrie, struct radix_node *node, int inode,
                  || (nodes[i].right && nodes[i].right->mark)
                  || inode < 0 ) {
                 /* One or more child is marked */
-                if ( inode >= 0 ) {
-                    if ( VEC_BT(poptrie->nodes[inode].vector, i) ) {
-                        ninode = poptrie->nodes[inode].base1
-                            + POPCNT_LS(poptrie->nodes[inode].vector, i) - 1;
-                    } else {
-                        ninode = -1;
-                    }
-                } else {
-                    ninode = -1;
+                ninode = -1;
+                if ( inode >= 0
+                     && VEC_BT(poptrie->nodes[inode].vector, i) ) {
+                    ninode = poptrie->nodes[inode].base1
+                        + POPCNT_LS(poptrie->nodes[inode].vector, i) - 1;
                 }
                 ret = _update_inode_chunk(poptrie, &nodes[i], ninode,
                                           children + i, &sleaf);
