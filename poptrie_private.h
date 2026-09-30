@@ -530,7 +530,6 @@ _update_part_loop1(struct poptrie *poptrie, struct radix_node *tnode, int inode,
     int i;
     int base0;
     int base1;
-    int p;
     int n;
     poptrie_leaf_t leaves[1 << 6];
     struct poptrie_node *node;
@@ -624,9 +623,9 @@ _update_part_loop1(struct poptrie *poptrie, struct radix_node *tnode, int inode,
                 n = 0;
                 for ( i = 0; i < (1 << 6); i++ ) {
                     if ( VEC_BT(vector, i) ) {
-                        p = POPCNT_LS(node->vector, i) - 1;
                         memcpy(&poptrie->nodes[base1 + n],
-                               &poptrie->nodes[node->base1 + p],
+                               &poptrie->nodes[node->base1
+                                   + POPCNT_LS(node->vector, i) - 1],
                                sizeof(poptrie_node_t));
                         n++;
                     }
