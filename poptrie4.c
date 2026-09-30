@@ -253,14 +253,10 @@ _update_subtree(struct poptrie *poptrie, struct radix_node *node, u32 prefix,
         idx = INDEX(prefix, 0, POPTRIE_S);
         /* Get the corresponding node in the radix tree */
         ntnode = _next_block(poptrie->radix, idx, 0, POPTRIE_S);
-        /* Get the corresponding node */
-        if ( poptrie->dir[idx] & ((u32)1 << 31) ) {
-            /* If the entry points to a leaf */
-            inode = -1;
-        } else {
-            /* If the entry points to an internal node */
-            inode = poptrie->dir[idx];
-        }
+        /* If the direct pointing entry points to a leaf, inode is -1;
+           otherwise it points to the internal node */
+        inode = ( poptrie->dir[idx] & ((u32)1 << 31) ) ? -1
+            : (int)poptrie->dir[idx];
         ret = _descend_and_update(poptrie, ntnode, inode, &stack[1], prefix,
                                   depth, POPTRIE_S, &poptrie->dir[idx]);
     }
