@@ -355,12 +355,12 @@ _update_inode_chunk_rec(struct poptrie *poptrie, struct radix_node *node,
     /* Decrement */
     r--;
 
+    /* Prepare a fallback node for NULL children */
+    tmp.left = NULL;
+    tmp.right = NULL;
+    tmp.ext = node->ext;
+
     /* Left */
-    if ( NULL == node->left ) {
-        tmp.left = NULL;
-        tmp.right = NULL;
-        tmp.ext = node->ext;
-    }
     ret0 = _update_inode_chunk_rec(poptrie, node->left ? node->left : &tmp,
                                    inode, nodes, leaf ? &sleaf0 : NULL, pos, r);
     if ( ret0 < 0 ) {
@@ -368,11 +368,6 @@ _update_inode_chunk_rec(struct poptrie *poptrie, struct radix_node *node,
     }
 
     /* Right */
-    if ( NULL == node->right ) {
-        tmp.left = NULL;
-        tmp.right = NULL;
-        tmp.ext = node->ext;
-    }
     ret1 = _update_inode_chunk_rec(poptrie, node->right ? node->right : &tmp,
                                    inode, nodes, leaf ? &sleaf1 : NULL,
                                    pos + (1 << r), r);
