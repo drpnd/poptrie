@@ -283,8 +283,6 @@ _descend_and_update(struct poptrie *poptrie, struct radix_node *tnode,
                     int depth, u32 *root)
 {
     int idx;
-    int p;
-    int n;
     struct poptrie_node *node;
     struct radix_node *ntnode;
     int width;
@@ -321,9 +319,7 @@ _descend_and_update(struct poptrie *poptrie, struct radix_node *tnode,
         /* Check the vector */
         if ( VEC_BT(node->vector, BITINDEX(idx)) ) {
             /* Internal node, then traverse to the child */
-            p = POPCNT_LS(node->vector, BITINDEX(idx));
-            n = (p - 1);
-            ninode = node->base1 + n;
+            ninode = node->base1 + POPCNT_LS(node->vector, BITINDEX(idx)) - 1;
         } else {
             /* Leaf node, then update from this node */
             ninode = -1;
