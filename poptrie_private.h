@@ -708,11 +708,7 @@ _update_part_loop2(struct poptrie *poptrie, struct poptrie_stack *stack,
                 return -1;
             }
             poptrie->leaves[base0] = stack->nexthop;
-            if ( VEC_BT(cnodes[i].vector, 0) ) {
-                VEC_SET(cnodes[i].leafvec, 1);
-            } else {
-                VEC_SET(cnodes[i].leafvec, 0);
-            }
+            VEC_SET(cnodes[i].leafvec, VEC_BT(cnodes[i].vector, 0) ? 1 : 0);
             cnodes[i].base0 = base0;
         }
     } else {
