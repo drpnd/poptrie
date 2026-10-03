@@ -674,14 +674,12 @@ _update_part_loop2(struct poptrie *poptrie, struct poptrie_stack *stack,
                    struct poptrie_node *cnodes)
 {
     int oroot;
-    int p;
     int n;
     int base1;
     int base0;
     int i;
     int j;
     poptrie_leaf_t leaves[1 << 6];
-    u64 prev;
     struct poptrie_node *node;
     u64 vector;
     u64 leafvec;
@@ -754,22 +752,9 @@ _update_part_loop2(struct poptrie *poptrie, struct poptrie_stack *stack,
                 return -1;
             }
 
-            VEC_INIT(leafvec);
-            n = ZEROCNT(vector);
+            n = _rebuild_leafvec(poptrie, node, vector, -1, 0,
+                                 &leafvec, leaves);
             if ( n > 0 ) {
-                n = 0;
-                prev = (u64)-1;
-                for ( i = 0; i < (1 << 6); i++ ) {
-                    if ( !VEC_BT(vector, i) ) {
-                        p = POPCNT_LS(node->leafvec, i);
-                        if ( poptrie->leaves[node->base0 + p - 1] != prev ) {
-                            leaves[n] = poptrie->leaves[node->base0 + p - 1];
-                            VEC_SET(leafvec, i);
-                            prev = poptrie->leaves[node->base0 + p - 1];
-                            n++;
-                        }
-                    }
-                }
                 base0 = buddy_alloc2(poptrie->cleaves, bsr(n - 1) + 1);
                 if ( base0 < 0 ) {
                     return -1;
