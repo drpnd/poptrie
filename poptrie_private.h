@@ -71,6 +71,7 @@ _update_part_loop2(struct poptrie *, struct poptrie_stack *,
                    struct poptrie_node *);
 static int
 _update_part_dp(struct poptrie *, struct radix_node *, int, u32 *, int);
+static int _replace_root(struct poptrie *, struct poptrie_node *, u32 *, int);
 static struct radix_node * _next_block(struct radix_node *, int, int, int);
 static void
 _parse_triangle(struct radix_node *, u64 *, struct radix_node *, int, int);
@@ -383,6 +384,34 @@ _update_inode_chunk_rec(struct poptrie *poptrie, struct radix_node *node,
 }
 
 /*
+ * Replace the root with a newly allocated internal node, performing the
+ * atomic swap and cleanup.  Returns 0 on success, -1 on allocation failure.
+ */
+static int
+_replace_root(struct poptrie *poptrie, struct poptrie_node *cnodes, u32 *root,
+              int alt)
+{
+    int nroot;
+    int oroot;
+
+    nroot = buddy_alloc2(poptrie->cnodes, 0);
+    if ( nroot < 0 ) {
+        return -1;
+    }
+    memcpy(poptrie->nodes + nroot, cnodes, sizeof(poptrie_node_t));
+    poptrie->root = nroot;
+
+    oroot = *root;
+    __sync_lock_test_and_set(root, nroot);
+
+    if ( !alt && !(oroot & ((u32)1 << 31)) ) {
+        _update_clean_root(poptrie, nroot, oroot);
+    }
+
+    return 0;
+}
+
+/*
  * Update the partial tree
  */
 static int
@@ -393,8 +422,6 @@ _update_part(struct poptrie *poptrie, struct radix_node *tnode, int inode,
     int ret;
     poptrie_leaf_t sleaf;
     int vcomp;
-    int nroot;
-    int oroot;
 
     /* Pop from the stack */
     stack--;
@@ -448,24 +475,7 @@ _update_part(struct poptrie *poptrie, struct radix_node *tnode, int inode,
         stack--;
     }
 
-    /* Replace the root */
-    nroot = buddy_alloc2(poptrie->cnodes, 0);
-    if ( nroot < 0 ) {
-        return -1;
-    }
-    memcpy(poptrie->nodes + nroot, cnodes, sizeof(poptrie_node_t));
-    poptrie->root = nroot;
-
-    /* Swap */
-    oroot = *root;
-    __sync_lock_test_and_set(root, nroot);
-
-    /* Clean */
-    if ( !alt && !(oroot & ((u32)1 << 31)) ) {
-        _update_clean_root(poptrie, nroot, oroot);
-    }
-
-    return 0;
+    return _replace_root(poptrie, cnodes, root, alt);
 }
 /*
  * Rebuild the leafvec and leaves array for a node whose leaf slots are
@@ -830,26 +840,9 @@ _update_part_dp(struct poptrie *poptrie, struct radix_node *tnode, int inode,
         }
 
         return 0;
-    } else {
-        /* Replace the root */
-        nroot = buddy_alloc2(poptrie->cnodes, 0);
-        if ( nroot < 0 ) {
-            return -1;
-        }
-        memcpy(poptrie->nodes + nroot, cnodes, sizeof(struct poptrie_node));
-        poptrie->root = nroot;
-
-        /* Replace the root with an atomic instruction */
-        oroot = *root;
-        __sync_lock_test_and_set(root, nroot);
-
-        /* Clean */
-        if ( !alt && !(oroot & ((u32)1 << 31)) ) {
-            _update_clean_root(poptrie, nroot, oroot);
-        }
-
-        return 0;
     }
+
+    return _replace_root(poptrie, cnodes, root, alt);
 }
 
 /*
